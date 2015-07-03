@@ -90,6 +90,9 @@ QString CompilerDriver_junosacl::run(const string &cluster_id,
     {
         clearReadOnly(fw);
 
+        // Copy rules from template firewalls
+        populateTemplateRules(fw);
+
         // Copy rules from the cluster object
         populateClusterElements(cluster, fw);
 

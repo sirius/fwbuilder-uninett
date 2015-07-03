@@ -53,6 +53,7 @@
 #include "fwbuilder/FWObjectDatabase.h"
 #include "fwbuilder/FailoverClusterGroup.h"
 #include "fwbuilder/Firewall.h"
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/IPv4.h"
 #include "fwbuilder/IPv6.h"
 #include "fwbuilder/Interface.h"
@@ -63,6 +64,7 @@
 #include "fwbuilder/Routing.h"
 #include "fwbuilder/Rule.h"
 #include "fwbuilder/StateSyncClusterGroup.h"
+#include "fwbuilder/RuleElement.h"
 
 #include "fwcompiler/Compiler.h"
 
@@ -980,6 +982,205 @@ void CompilerDriver::mergeRuleSets(Cluster *cluster, Firewall *fw,
         }
     }
 }
+
+bool CompilerDriver::interfaceUsedInTemplateRules(Firewall *fw, TemplateFirewall *tfw) {
+    list<FWObject*> fwInterfaces = fw->getByTypeDeep(Interface::TYPENAME);
+    set<int> fwInterfaceSet;
+
+    for(FWObject::iterator i = fwInterfaces.begin(); i!=fwInterfaces.end(); ++i)
+        fwInterfaceSet.insert(FWObject::cast(*i)->getId());
+
+    // TODO: Add support for NAT and Routing
+    list<FWObject *> all_rulesets = tfw->getByType(Policy::TYPENAME);
+    for (list<FWObject *>::iterator ruleset_it = all_rulesets.begin();
+         ruleset_it != all_rulesets.end(); ++ruleset_it)
+    {
+        FWObject *ruleset = Policy::cast(*ruleset_it);
+        if (ruleset==NULL) continue;
+
+        for (list<FWObject *>::iterator rule_it = ruleset->begin();
+             rule_it != ruleset->end(); ++rule_it)
+        {
+            PolicyRule *rule = PolicyRule::cast(*rule_it);
+            if (rule==NULL) continue;
+
+            RuleElementItf *itfre = rule->getItf();
+            if (itfre==NULL) continue;
+            if (itfre->isAny()) {
+                warning(tfw, ruleset, rule, "Template rule contains ANY interface. Template only support groups");
+                continue;
+            }
+
+            for (FWObject::iterator i=itfre->begin(); i!=itfre->end(); ++i)
+            {
+                FWObject *o = FWReference::getObject(*i);
+                // We only parse object groups
+                if (ObjectGroup::isA(o)) {
+                    for (FWObject::iterator i=o->begin(); i!=o->end(); ++i)
+                    {
+                        FWObject *o1 = FWReference::getObject(*i);
+                        if (Interface::isA(o1))
+                        {
+                            if (interfaceSetContainsInterface(fwInterfaceSet, Interface::cast(o1)))
+                                return true;
+                        }
+                    }
+                } else {
+                    warning(tfw, ruleset, rule, "Template rule contains single interface. TemplateFirewall only support groups.");
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool CompilerDriver::interfaceSetContainsInterface(std::set<int> &interfaceSet, Interface *itf)
+{
+    if (itf==NULL) return false;
+
+    if (Interface::isA(itf))
+        return (interfaceSet.find(itf->getId()) != interfaceSet.end());
+
+    return false;
+}
+
+/*
+ * 1. Iterate over all template firewalls
+ *    -> Iterate over all rules
+ *       -> Iterate over all group targets in interfaces
+ *          -> if interface in group is an element of this firewall,
+ *             add template fw to list
+ * 2. Iterate over all template firewalls in list
+ *    -> Create new ruleset
+ *    -> Copy all rules
+ *    -> Make warning / error of empty rules
+ *    -> Remove other interfaces
+ *
+ * 3. Merge rules from top ruleset of firewall into the new ruleset
+ *    -> Replace old ruleset with the new ruleset
+ */
+
+void CompilerDriver::populateTemplateRules(libfwbuilder::Firewall *fw)
+{
+    if (fw==NULL) return;
+
+    list<TemplateFirewall *> activeTemplateFirewalls;
+    list<FWObject *> templateFirewalls = fw->getRoot()->getByTypeDeep(TemplateFirewall::TYPENAME);
+
+    list<FWObject*> fwInterfaces = fw->getByTypeDeep(Interface::TYPENAME);
+    set<int> fwInterfaceSet;
+
+    for(FWObject::iterator i = fwInterfaces.begin(); i!=fwInterfaces.end(); ++i)
+        fwInterfaceSet.insert(FWObject::cast(*i)->getId());
+
+    // Find active TemplateFirewalls for current firewall
+    list<FWObject *>::iterator it = templateFirewalls.begin();
+    for (; it != templateFirewalls.end(); ++it) {
+
+        TemplateFirewall *tfw = TemplateFirewall::cast(*it);
+        if (tfw==NULL) continue;
+
+        if (interfaceUsedInTemplateRules(fw, tfw))
+            activeTemplateFirewalls.push_back(tfw);
+    }
+
+    // Copy original firewall rules
+    // These will be appended at the end
+    Policy *post_policy = new Policy();
+    post_policy->duplicate(fw->getPolicy());
+    while(fw->getPolicy()->getRuleSetSize())
+        fw->getPolicy()->deleteRule(0);
+
+    for (list<TemplateFirewall *>::iterator tfwi = activeTemplateFirewalls.begin();
+         tfwi != activeTemplateFirewalls.end(); ++tfwi)
+    {
+        list<FWObject *> all_rulesets = FWObject::cast(*tfwi)->getByType(Policy::TYPENAME);
+        for (list<FWObject *>::iterator ruleset_it = all_rulesets.begin();
+             ruleset_it != all_rulesets.end(); ++ruleset_it)
+        {
+            FWObject *ruleset = Policy::cast(*ruleset_it);
+            if (ruleset==NULL) continue;
+
+            for (list<FWObject *>::iterator rule_it = ruleset->begin();
+                 rule_it != ruleset->end(); ++rule_it)
+            {
+                PolicyRule *rule = PolicyRule::cast(*rule_it);
+                if (rule==NULL) continue;
+
+                if (rule->getItf()->isAny()) {
+                    rule->disable();
+                    warning(*tfwi, ruleset, rule, "Rule disabled: Template rule does not include interface for current firewall, or an ANY interface.");
+                    continue;
+                }
+
+                FWObject *rule_interfaces = rule->getItf();
+
+                // Remove all interfaces not on current firewall
+                set<FWObject *> interfacesToUse;
+                string originalInterfacesForRule;
+                for (FWObject::iterator i=rule_interfaces->begin(); i!=rule_interfaces->end(); ++i)
+                {
+                    FWObject *o = FWReference::getObject(*i);
+                    originalInterfacesForRule.append(o->getName() + ",");
+                    // We only parse object groups
+                    if (ObjectGroup::isA(o)) {
+
+                        for (FWObject::iterator i=o->begin(); i!=o->end(); ++i)
+                        {
+                            FWObject *o1 = FWReference::getObject(*i);
+                            if (Interface::isA(o1))
+                            {
+                                if (interfaceSetContainsInterface(fwInterfaceSet, Interface::cast(o1))) {
+                                    interfacesToUse.insert(o1);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                rule->getItf()->clearChildren(false);
+
+                for (set<FWObject *>::const_iterator iit = interfacesToUse.begin();
+                     iit != interfacesToUse.end(); ++iit)
+                    rule->getItf()->addRef(*iit);
+
+                string rule_comment = rule->getComment();
+                originalInterfacesForRule[originalInterfacesForRule.size() - 1] = ')';
+                rule_comment.append("Original template interfaces (" + originalInterfacesForRule + "\n\n");
+                rule->setComment(rule_comment);
+
+
+//                // Disable rules with ANY interface
+//                if (rule_interfaces->size() == 1) {
+//                    FWObject *o = FWReference::getObject(*(rule_interfaces->begin()));
+//                    if (ObjectGroup::isA(o))
+//                        if (Interface::isA(FWReference::getObject(*(o->begin()))) &&
+//                                Interface::cast(FWReference::getObject(*(o->begin())))->isAny())
+//                        {
+//                                                rule->disable();
+//                                                warning(*tfwi, ruleset, rule, "Rule disabled: Template rule does not include interface for current firewall, or an ANY interface.");
+//                        }
+
+//                }
+
+                if (rule->getItf()->isAny()) {
+                    rule->disable();
+                    warning(*tfwi, ruleset, rule, "Rule disabled: Template rule does not include interface for current firewall, or an ANY interface.");
+                }
+
+                fw->getPolicy()->addCopyOf(rule, false);
+
+            }
+        }
+    }
+
+    for (int i = 0; i < post_policy->getRuleSetSize(); ++i)
+        fw->getPolicy()->addCopyOf(post_policy->getRuleByNum(i));
+
+    fw->getPolicy()->renumberRules();
+}
+
 
 /*
  * 1. Iterate over all fw interfaces and check if they are referenced in a

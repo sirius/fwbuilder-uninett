@@ -48,6 +48,7 @@ namespace libfwbuilder {
     class ClusterGroup;
     class FailoverClusterGroup;
     class Firewall;
+    class TemplateFirewall;
     class RuleSet;
     class Interface;
     class Address;
@@ -224,6 +225,12 @@ public:
                                    libfwbuilder::Firewall *fw,
                                    libfwbuilder::FailoverClusterGroup *cluster_group,
                                    libfwbuilder::Interface *iface);
+
+        virtual void populateTemplateRules(libfwbuilder::Firewall *fw);
+        virtual bool interfaceSetContainsInterface(std::set<int> &interfaceSet,
+                                                   libfwbuilder::Interface *itf);
+        virtual bool interfaceUsedInTemplateRules(libfwbuilder::Firewall *fw,
+                                                  libfwbuilder::TemplateFirewall *tfw);
 
         virtual void populateClusterElements(libfwbuilder::Cluster *cluster,
                                              libfwbuilder::Firewall *fw);

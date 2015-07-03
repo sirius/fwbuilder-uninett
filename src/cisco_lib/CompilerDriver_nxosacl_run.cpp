@@ -133,6 +133,9 @@ QString CompilerDriver_nxosacl::run(const std::string &cluster_id,
     {
         clearReadOnly(fw);
 
+        // Copy rules from template firewalls
+        populateTemplateRules(fw);
+
         // Copy rules from the cluster object
         populateClusterElements(cluster, fw);
 
