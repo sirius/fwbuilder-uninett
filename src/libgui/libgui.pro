@@ -234,7 +234,8 @@ HEADERS += ../../config.h \
 	RuleSetDiffDelegate.h \
     	RuleSetDiffModel.h \
     	BackgroundCompileInfoWidget.h \
-    	temporarydir.h
+    	temporarydir.h \
+    TemplateGroupDialog.h
 
 
 SOURCES += ProjectPanel.cpp \
@@ -462,7 +463,8 @@ SOURCES += ProjectPanel.cpp \
     	RuleSetDiffDelegate.cpp \
     	RuleSetDiffModel.cpp \
     	BackgroundCompileInfoWidget.cpp \
-    	temporarydir.cpp
+    	temporarydir.cpp \
+    TemplateGroupDialog.cpp
 
 FORMS = FWBMainWindow_q.ui \
     compileroutputpanel_q.ui \
@@ -599,7 +601,8 @@ FORMS = FWBMainWindow_q.ui \
 	importFirewallConfigurationWizard/ic_platformwarningpage_q.ui \
 	importFirewallConfigurationWizard/ic_progresspage_q.ui \
 	importFirewallConfigurationWizard/ic_networkzonespage_q.ui \
-    rulesetdiffdialog_q.ui
+    rulesetdiffdialog_q.ui \
+    templategroupdialog_q.ui
 
 
 # fwtransfer stuff.

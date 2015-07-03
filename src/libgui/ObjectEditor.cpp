@@ -96,6 +96,8 @@
 #include "fwbuilder/Interval.h"
 #include "fwbuilder/IntervalGroup.h"
 
+#include "fwbuilder/TemplateGroup.h"
+
 #include <iostream>
 
 using namespace std;
@@ -127,6 +129,9 @@ ObjectEditor::ObjectEditor( QWidget *parent):
     registerObjectDialog(editorStack, Interface::TYPENAME, "w_InterfaceDialog");
     registerObjectDialog(editorStack, UserService::TYPENAME, "w_UserDialog");
     registerObjectDialog(editorStack, Policy::TYPENAME, "w_PolicyDialog");
+
+    registerObjectDialog(editorStack, TemplateGroup::TYPENAME, "w_TemplateGroupDialog");
+
     registerObjectDialog(editorStack, NAT::TYPENAME, "w_NATDialog");
     registerObjectDialog(editorStack, Routing::TYPENAME, "w_RoutingDialog");
 
