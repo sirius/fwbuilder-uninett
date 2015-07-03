@@ -117,6 +117,9 @@ namespace libfwbuilder
     class ServiceGroup;
     class TCPService;
     class TagService;
+    class TemplateFirewall;
+    class TemplateGroup;
+    class TemplateGroupOptions;
     class UDPService;
     class UserService;
     class physAddress;
@@ -186,6 +189,9 @@ namespace libfwbuilder
     DECLARE_CREATE_OBJ_METHOD(ServiceGroup);
     DECLARE_CREATE_OBJ_METHOD(TCPService);
     DECLARE_CREATE_OBJ_METHOD(TagService);
+    DECLARE_CREATE_OBJ_METHOD(TemplateFirewall);
+    DECLARE_CREATE_OBJ_METHOD(TemplateGroup);
+    DECLARE_CREATE_OBJ_METHOD(TemplateGroupOptions);
     DECLARE_CREATE_OBJ_METHOD(UDPService);
     DECLARE_CREATE_OBJ_METHOD(UserService);
     DECLARE_CREATE_OBJ_METHOD(physAddress);
@@ -562,6 +568,9 @@ public:
     DECLARE_CREATE_OBJ_CLASS_METHOD(ServiceGroup);
     DECLARE_CREATE_OBJ_CLASS_METHOD(TCPService);
     DECLARE_CREATE_OBJ_CLASS_METHOD(TagService);
+    DECLARE_CREATE_OBJ_CLASS_METHOD(TemplateFirewall);
+    DECLARE_CREATE_OBJ_CLASS_METHOD(TemplateGroup);
+    DECLARE_CREATE_OBJ_CLASS_METHOD(TemplateGroupOptions);
     DECLARE_CREATE_OBJ_CLASS_METHOD(UDPService);
     DECLARE_CREATE_OBJ_CLASS_METHOD(UserService);
     DECLARE_CREATE_OBJ_CLASS_METHOD(physAddress);

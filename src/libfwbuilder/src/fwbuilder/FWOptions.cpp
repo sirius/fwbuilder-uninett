@@ -122,4 +122,6 @@ RoutingRuleOptions::RoutingRuleOptions() : FWOptions() {}
 const char *ClusterGroupOptions::TYPENAME={"ClusterGroupOptions"};
 ClusterGroupOptions::ClusterGroupOptions() : FWOptions() {}
 
+const char *TemplateGroupOptions::TYPENAME={"TemplateGroupOptions"};
+TemplateGroupOptions::TemplateGroupOptions() : FWOptions() {}
 

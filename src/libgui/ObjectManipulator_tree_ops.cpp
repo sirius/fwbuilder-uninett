@@ -110,6 +110,8 @@
 #include "fwbuilder/AddressRange.h"
 #include "fwbuilder/ObjectGroup.h"
 
+#include "fwbuilder/TemplateGroup.h"
+
 #include "fwbuilder/Resources.h"
 #include "fwbuilder/FWReference.h"
 #include "fwbuilder/Interface.h"
@@ -363,6 +365,9 @@ void ObjectManipulator::insertSubtree(ObjectTreeViewItem *itm, FWObject *obj)
          for (FWObjectTypedChildIterator it = obj->findByType(Interface::TYPENAME);
               it != it.end(); ++it) insertSubtree( nitm, *it );
 
+         FWObject *o = obj->getFirstByType(TemplateGroup::TYPENAME);
+         if (o && TemplateGroup::cast(o)->getInactive() == false) insertSubtree(nitm, o);
+
          return ;
     }
 
@@ -389,6 +394,8 @@ void ObjectManipulator::insertSubtree(ObjectTreeViewItem *itm, FWObject *obj)
     {
         FWObject *o1=*m;
         if (FWReference::cast(o1)!=NULL) continue;
+
+        if (TemplateGroupOptions::cast(o1)) continue;
 
         insertSubtree(nitm, o1);
     }

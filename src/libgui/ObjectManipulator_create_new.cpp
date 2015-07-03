@@ -76,6 +76,7 @@
 #include "fwbuilder/StateSyncClusterGroup.h"
 #include "fwbuilder/TCPService.h"
 #include "fwbuilder/TagService.h"
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/UDPService.h"
 #include "fwbuilder/UserService.h"
 
@@ -173,12 +174,14 @@ void ObjectManipulator::createNewObject()
 
     if (type_name ==  Firewall::TYPENAME ||
         type_name ==  Cluster::TYPENAME ||
+        type_name ==  TemplateFirewall::TYPENAME ||
         type_name ==  Host::TYPENAME)
     {
         // These three functions call separate modal dialogs that can
         // be cancelled by the user
         if (type_name ==  Firewall::TYPENAME) new_obj = newFirewall(macro);
         if (type_name ==  Cluster::TYPENAME) new_obj = newCluster(macro);
+        if (type_name ==  TemplateFirewall::TYPENAME) new_obj = newTemplateFirewall(macro);
         if (type_name ==  Host::TYPENAME) new_obj = newHost(macro);
         if (new_obj == NULL)
         {
@@ -672,6 +675,36 @@ FWObject* ObjectManipulator::newFailoverClusterGroup(QUndoCommand* macro)
     o->setStr("type", group_type.toStdString());
     return o;
 }
+
+FWObject* ObjectManipulator::newTemplateFirewall(QUndoCommand* macro)
+{
+    FWObject *parent =
+        FWBTree().getStandardSlotForObject(getCurrentLib(), TemplateFirewall::TYPENAME);
+    assert(parent);
+    ObjectTreeViewItem* parent_item = allItems[parent];
+    assert(parent_item);
+
+    FWObjectDatabase *db_orig = parent->getRoot();
+    FWObjectDatabase *db_copy = new FWObjectDatabase();
+    db_copy->duplicate(db_orig, false);
+
+    FWObject *nfw = static_cast<TemplateFirewall*>(db_copy->create(TemplateFirewall::TYPENAME));
+
+    nfw->setName("Unnamed Template");
+
+    if (nfw!=NULL)
+    {
+        FWCmdAddObject *cmd = new FWCmdAddObject(
+            m_project, parent, NULL, QObject::tr("Create new TemplateFirewall"), macro);
+        FWObject *new_state = cmd->getNewState();
+
+        parent->remove(nfw, false);
+        new_state->add(nfw);
+    }
+
+    return nfw;
+}
+
 
 /*
  * Creates new AttachedNetworks object; this method is called by

@@ -41,6 +41,10 @@
       <description>Firewall Cluster</description>
     </Cluster>
 
+    <TemplateFirewall>
+      <description>Template Firewall</description>
+    </TemplateFirewall>
+
     <StateSyncClusterGroup>
       <description>Group of Cluster members</description>
     </StateSyncClusterGroup>

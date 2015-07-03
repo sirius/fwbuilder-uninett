@@ -46,6 +46,7 @@
 #include "fwbuilder/RuleElement.h"
 #include "fwbuilder/StateSyncClusterGroup.h"
 #include "fwbuilder/XMLTools.h"
+#include "fwbuilder/TemplateGroup.h"
 
 #include <iostream>
 #include <algorithm>
@@ -81,6 +82,9 @@ void Firewall::init(FWObjectDatabase *root)
         p = root->createRouting();
         p->setTop(true);
         add(p);
+
+        if (getTypeName() == Firewall::TYPENAME)
+            add( root->createTemplateGroup() );
     }
 }
 
@@ -178,6 +182,11 @@ xmlNodePtr Firewall::toXML(xmlNodePtr parent) throw(FWException)
     o=getFirstByType( FirewallOptions::TYPENAME );
     if (o) o->toXML(me);
 
+    if (getTypeName() == Firewall::TYPENAME) {
+        o=getFirstByType( TemplateGroup::TYPENAME );
+        if (o) o->toXML(me);
+    }
+
     return me;
 }
 
@@ -203,6 +212,13 @@ Routing* Firewall::getRouting()
     return(Routing::cast(findObjectByName(Routing::TYPENAME, "Routing")));
 }
 
+TemplateGroup* Firewall::getTemplateGroup()
+{
+    if (getTypeName() != Firewall::TYPENAME)
+        return NULL;
+    return TemplateGroup::cast(getFirstByType(TemplateGroup::TYPENAME));
+}
+
 
 bool  Firewall::validateChild(FWObject *o)
 { 
@@ -213,6 +229,13 @@ bool  Firewall::validateChild(FWObject *o)
         list<FWObject*> routing_objects = getByType(Routing::TYPENAME);
         if (routing_objects.size() > 0) return false;
     }
+
+    // Add support for TemplateGroup for Firewall objects,
+    // but not for TemplateFirewall objects
+    if (getTypeName() == Firewall::TYPENAME)
+        if (otype==TemplateGroup::TYPENAME)
+            return true;
+
     return (FWObject::validateChild(o) && 
 	    (otype==Interface::TYPENAME  ||
 	     otype==RuleSet::TYPENAME    ||
@@ -220,7 +243,7 @@ bool  Firewall::validateChild(FWObject *o)
 	     otype==NAT::TYPENAME        ||
 	     otype==Routing::TYPENAME    ||
 	     otype==Management::TYPENAME ||
-	     otype==FirewallOptions::TYPENAME ));
+         otype==FirewallOptions::TYPENAME ));
 }
 
 void Firewall::duplicateInterfaces(FWObject *target, const FWObject *source,
@@ -316,6 +339,11 @@ FWObject& Firewall::duplicate(const FWObject *obj,
     o=obj->getFirstByType( FirewallOptions::TYPENAME );
     addCopyOf(o,preserve_id);
 
+    if (getTypeName() == Firewall::TYPENAME) {
+        o=obj->getFirstByType( TemplateGroup::TYPENAME );
+        addCopyOf(o,preserve_id);
+    }
+
     // replace references to old objects in rules
     map<int, int>::iterator it;
     for (it=id_mapping_for_duplicate.begin(); it!=id_mapping_for_duplicate.end(); ++it)
@@ -356,14 +384,15 @@ void Firewall::updateLastModifiedTimestamp()
 
 bool Firewall::needsInstall()
 {
-    if (getLastInstalled()==0 || getLastCompiled()==0) return true;
-    return !(getLastModified()<=getLastCompiled() && 
-            getLastCompiled()<=getLastInstalled());
+    if (getLastInstalled() == 0 || getLastCompiled() == 0) return true;
+
+    return !(getLastModified() <= getLastCompiled() &&
+            getLastCompiled() <= getLastInstalled());
 }
 
 bool Firewall::needsCompile()
 {
-    return getLastModified()>getLastCompiled() || getLastCompiled()==0;
+    return getLastModified() > getLastCompiled() || getLastCompiled() == 0;
 }
 
 time_t Firewall::getLastModified()

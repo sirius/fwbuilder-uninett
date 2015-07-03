@@ -42,6 +42,7 @@
 #include "fwbuilder/FWObjectDatabase.h"
 #include "fwbuilder/Firewall.h"
 #include "fwbuilder/Cluster.h"
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/Resources.h"
 #include "fwbuilder/Policy.h"
 #include "fwbuilder/NAT.h"
@@ -506,7 +507,7 @@ bool RuleSetModel::isEmpty()
 Firewall* RuleSetModel::getFirewall() const
 {
     FWObject *f=ruleset;
-    while (f!=NULL && (!Firewall::isA(f) && !Cluster::isA(f))) f=f->getParent();
+    while (f!=NULL && (!Firewall::isA(f) && !Cluster::isA(f)) && !TemplateFirewall::isA(f)) f=f->getParent();
     // f can be NULL if user is looking at deleted ruleset which is a child
     // of the library DeletedObjects
     return Firewall::cast(f);

@@ -43,7 +43,7 @@
 #include "fwbuilder/Interface.h"
 #include "fwbuilder/Network.h"
 #include "fwbuilder/Firewall.h"
-
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/FWObjectReference.h"
 #include "fwbuilder/FWServiceReference.h"
 #include "fwbuilder/FWIntervalReference.h"
@@ -380,6 +380,11 @@ bool RuleElementItf::checkItfChildOfThisFw(FWObject *o)
 {
     if (Group::cast(o) != NULL)
     {
+        //TemplateFirewall
+        FWObject* templateFirewall = getRoot()->findInIndex(this->getId());
+        while (templateFirewall && TemplateFirewall::cast(templateFirewall) == NULL) templateFirewall = templateFirewall->getParent();
+            if (templateFirewall) return true;
+
         for (FWObject::iterator i=o->begin(); i!=o->end(); ++i)
         {
             FWObject *o1 = FWReference::getObject(*i);

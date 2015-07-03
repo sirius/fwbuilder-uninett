@@ -41,6 +41,7 @@ namespace libfwbuilder
     class NAT;
     class RuleSet;
     class Routing;
+    class TemplateGroup;
 
 class Firewall : public Host 
 {
@@ -106,6 +107,8 @@ public:
     NAT     *getNAT();
     Routing *getRouting();
 
+    TemplateGroup *getTemplateGroup();
+
     /**
      * scan all rules of all rule sets and call setUniqueId() to set
      * unique string id for each rule. These IDs will be carried
@@ -121,16 +124,16 @@ public:
      */
     std::list<libfwbuilder::Interface*> getInterfacesByType(const std::string &iface_type);
     
-    time_t getLastModified();
-    time_t getLastInstalled();
-    time_t getLastCompiled();
-    void   updateLastInstalledTimestamp();
-    void   updateLastModifiedTimestamp();
-    void   updateLastCompiledTimestamp();
-    bool   needsInstall();
-    bool   needsCompile();
-    bool   getInactive();
-    void   setInactive(bool b);
+    virtual time_t getLastModified();
+    virtual time_t getLastInstalled();
+    virtual time_t getLastCompiled();
+    virtual void   updateLastInstalledTimestamp();
+    virtual void   updateLastModifiedTimestamp();
+    virtual void   updateLastCompiledTimestamp();
+    virtual bool   needsInstall();
+    virtual bool   needsCompile();
+    virtual bool   getInactive();
+    virtual void   setInactive(bool b);
 
 };
 

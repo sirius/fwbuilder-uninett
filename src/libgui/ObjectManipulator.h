@@ -182,6 +182,7 @@ class ObjectManipulator : public QWidget
     libfwbuilder::FWObject* newHost(QUndoCommand* macro);
     libfwbuilder::FWObject* newInterface(QUndoCommand* macro);
     libfwbuilder::FWObject* newFirewall(QUndoCommand* macro);
+    libfwbuilder::FWObject* newTemplateFirewall(QUndoCommand* macro);
     libfwbuilder::FWObject* newCluster(QUndoCommand* macro, bool fromSelected = false);
     libfwbuilder::FWObject* newClusterIface(QUndoCommand* macro);
     libfwbuilder::FWObject* newStateSyncClusterGroup(QUndoCommand* macro);

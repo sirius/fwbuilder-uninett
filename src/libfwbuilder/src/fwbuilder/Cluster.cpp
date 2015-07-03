@@ -159,61 +159,6 @@ FWObject& Cluster::duplicate(const FWObject *obj,
     return *this;
 }
 
-void Cluster::updateLastInstalledTimestamp()
-{
-    setInt("lastInstalled", time(NULL));
-}
-
-void Cluster::updateLastModifiedTimestamp()
-{
-    setInt("lastModified", time(NULL));
-}
-
-bool Cluster::needsInstall()
-{
-    if (getLastInstalled() == 0 || getLastCompiled() == 0)
-    {
-        return true;
-    }
-    return !(getLastModified() <= getLastCompiled() &&
-             getLastCompiled() <= getLastInstalled());
-}
-
-bool Cluster::needsCompile()
-{
-    return getLastModified() > getLastCompiled() || getLastCompiled() == 0;
-}
-
-time_t Cluster::getLastModified()
-{
-    return getInt("lastModified");
-}
-
-time_t Cluster::getLastInstalled()
-{
-    return getInt("lastInstalled");
-}
-
-time_t Cluster::getLastCompiled()
-{
-    return getInt("lastCompiled");
-}
-
-void Cluster::updateLastCompiledTimestamp()
-{
-    setInt("lastCompiled", time(NULL));
-}
-
-bool Cluster::getInactive()
-{
-    return getBool("inactive");
-}
-
-void Cluster::setInactive(bool b)
-{
-    setBool("inactive", b);
-}
-
 bool Cluster::validateMember(Firewall *fw)
 {
     string my_host_os = getStr("host_OS");

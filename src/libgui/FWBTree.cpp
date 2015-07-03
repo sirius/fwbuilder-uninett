@@ -62,6 +62,7 @@
 #include "fwbuilder/StateSyncClusterGroup.h"
 #include "fwbuilder/TCPService.h"
 #include "fwbuilder/TagService.h"
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/UDPService.h"
 #include "fwbuilder/UserService.h"
 
@@ -120,6 +121,7 @@ void FWBTree::init_statics()
 
         standardFolders << "Firewalls";
         standardFolders << "Clusters";
+        standardFolders << "Template Firewalls";
         standardFolders << "Time";
 
 
@@ -149,6 +151,7 @@ void FWBTree::init_statics()
 
         systemGroupPaths[Firewall::TYPENAME]      = "Firewalls";
         systemGroupPaths[Cluster::TYPENAME]       = "Clusters";
+        systemGroupPaths[TemplateFirewall::TYPENAME] = "Template Firewalls";
 
         systemGroupPaths[Interval::TYPENAME]      = "Time";
 
@@ -159,6 +162,9 @@ void FWBTree::init_statics()
 
         systemGroupTypes[Cluster::TYPENAME]=       ObjectGroup::TYPENAME;
         systemGroupNames[Cluster::TYPENAME]=       "Clusters";
+
+        systemGroupTypes[TemplateFirewall::TYPENAME] = ObjectGroup::TYPENAME;
+        systemGroupNames[TemplateFirewall::TYPENAME] = "Template Firewalls";
 
         systemGroupTypes[Host::TYPENAME]=          ObjectGroup::TYPENAME;
         systemGroupNames[Host::TYPENAME]=          "Hosts"          ;
@@ -280,6 +286,7 @@ void FWBTree::init_statics()
         copyMenuState[""] = false;
         copyMenuState["Firewalls"] = false;
         copyMenuState["Clusters"] = false;
+        copyMenuState["Template Firewalls"] = false;
         copyMenuState["Objects"] = false;
         copyMenuState["Objects/Addresses"] = false;
         copyMenuState["Objects/DNS Names"] = false;
@@ -301,6 +308,7 @@ void FWBTree::init_statics()
         cutMenuState[""] = true;
         cutMenuState["Firewalls"] = false;
         cutMenuState["Clusters"] = false;
+        cutMenuState["Template Firewalls"] = false;
         cutMenuState["Objects"] = false;
         cutMenuState["Objects/Addresses"] = false;
         cutMenuState["Objects/DNS Names"] = false;
@@ -323,6 +331,7 @@ void FWBTree::init_statics()
         pasteMenuState[""] = false;
         pasteMenuState["Firewalls"] = true;
         pasteMenuState["Clusters"] = true;
+        pasteMenuState["Template Firewalls"] = true;
         pasteMenuState["Objects"] = false;
         pasteMenuState["Objects/Addresses"] = true;
         pasteMenuState["Objects/DNS Names"] = true;
@@ -345,6 +354,7 @@ void FWBTree::init_statics()
         deleteMenuState[""] = true;
         deleteMenuState["Firewalls"] = false;
         deleteMenuState["Clusters"] = false;
+        deleteMenuState["Template Firewalls"] = false;
         deleteMenuState["Objects"] = false;
         deleteMenuState["Objects/Addresses"] = false;
         deleteMenuState["Objects/DNS Names"] = false;
@@ -604,6 +614,10 @@ FWObject* FWBTree::createNewLibrary(FWObjectDatabase *db)
     o1->setName("Clusters");
     nlib->add(o1);
 
+    o1 = db->create(ObjectGroup::TYPENAME);
+    o1->setName("Template Firewalls");
+    nlib->add(o1);
+
     o1 = db->create(IntervalGroup::TYPENAME);
     o1->setName("Time");
     nlib->add(o1);
@@ -619,6 +633,7 @@ QString FWBTree::getTranslatableObjectTypeName(const QString &type_name)
     if (type_name == Library::TYPENAME) return QObject::tr("Library");
     if (type_name == Firewall::TYPENAME) return QObject::tr("Firewall");
     if (type_name == Cluster::TYPENAME) return QObject::tr("Cluster");
+    if (type_name == TemplateFirewall::TYPENAME) return QObject::tr("Template Firewall");
     if (type_name == Host::TYPENAME) return QObject::tr("Host");
     if (type_name == Interface::TYPENAME) return QObject::tr("Interface");
     if (type_name == AttachedNetworks::TYPENAME) return QObject::tr("Attached Networks");
@@ -658,6 +673,7 @@ QString FWBTree::getTranslatableNewObjectMenuText(const QString &type_name)
     if (type_name == Library::TYPENAME) return QObject::tr("New Library");
     if (type_name == Firewall::TYPENAME) return QObject::tr("New Firewall");
     if (type_name == Cluster::TYPENAME) return QObject::tr("New Cluster");
+    if (type_name == TemplateFirewall::TYPENAME) return QObject::tr("New Template Firewall");
     if (type_name == Host::TYPENAME) return QObject::tr("New Host");
     if (type_name == Interface::TYPENAME) return QObject::tr("New Interface");
     if (type_name == AttachedNetworks::TYPENAME) return QObject::tr("New Attached Networks");
@@ -698,6 +714,7 @@ QList<const char *> FWBTree::getObjectTypes()
     QList<const char *> ret;
     ret.append(Firewall::TYPENAME);
     ret.append(Cluster::TYPENAME);
+    ret.append(TemplateFirewall::TYPENAME);
     ret.append(Host::TYPENAME);
     ret.append(Network::TYPENAME);
     ret.append(NetworkIPv6::TYPENAME);

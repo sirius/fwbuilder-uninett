@@ -93,16 +93,6 @@ namespace libfwbuilder
          */
         bool hasMember(libfwbuilder::Firewall *fw);
 
-        time_t getLastModified();
-        time_t getLastInstalled();
-        time_t getLastCompiled();
-        void   updateLastInstalledTimestamp();
-        void   updateLastModifiedTimestamp();
-        void   updateLastCompiledTimestamp();
-        bool   needsInstall();
-        bool   needsCompile();
-        bool   getInactive();
-        void   setInactive(bool b);
     };
 }
 

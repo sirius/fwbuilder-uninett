@@ -60,6 +60,8 @@
 #include "fwbuilder/Cluster.h"
 #include "fwbuilder/StateSyncClusterGroup.h"
 #include "fwbuilder/FailoverClusterGroup.h"
+#include "fwbuilder/TemplateFirewall.h"
+#include "fwbuilder/TemplateGroup.h"
 
 #include "fwbuilder/AttachedNetworks.h"
 #include "fwbuilder/DynamicGroup.h"
@@ -260,6 +262,12 @@ void FWObjectDatabase::init_create_methods_table()
                            &create_TCPService);
         registerObjectType("TagService",
                            &create_TagService);
+        registerObjectType("TemplateFirewall",
+                           &create_TemplateFirewall);
+        registerObjectType("TemplateGroup",
+                           &create_TemplateGroup);
+        registerObjectType("TemplateGroupOptions",
+                           &create_TemplateGroupOptions);
         registerObjectType("UDPService",
                            &create_UDPService);
         registerObjectType("UserService",
@@ -434,6 +442,9 @@ CREATE_OBJ_METHOD(SNMPManagement);
 CREATE_OBJ_METHOD(ServiceGroup);
 CREATE_OBJ_METHOD(TCPService);
 CREATE_OBJ_METHOD(TagService);
+CREATE_OBJ_METHOD(TemplateFirewall);
+CREATE_OBJ_METHOD(TemplateGroup);
+CREATE_OBJ_METHOD(TemplateGroupOptions);
 CREATE_OBJ_METHOD(UDPService);
 CREATE_OBJ_METHOD(UserService);
 CREATE_OBJ_METHOD(physAddress);

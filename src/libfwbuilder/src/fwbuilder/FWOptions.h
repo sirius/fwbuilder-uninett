@@ -121,6 +121,15 @@ class ClusterGroupOptions : public FWOptions
     DECLARE_DISPATCH_METHODS(ClusterGroupOptions);
 };
 
+class TemplateGroupOptions : public FWOptions
+{
+    public:
+    TemplateGroupOptions();
+
+    DECLARE_FWOBJECT_SUBTYPE(TemplateGroupOptions)
+    DECLARE_DISPATCH_METHODS(TemplateGroupOptions)
+};
+
 }
 
 #endif // __FWOPTINS_HH_FLAG

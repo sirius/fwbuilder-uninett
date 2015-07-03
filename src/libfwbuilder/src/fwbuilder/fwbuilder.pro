@@ -80,7 +80,9 @@ SOURCES  = 	InetAddr.cpp \
 			ObjectMirror.cpp \
 			inet_net_ntop.c \
 			inet_net_pton.c \
-			uint128.cpp
+			uint128.cpp \
+    TemplateFirewall.cpp \
+    TemplateGroup.cpp
 
 HEADERS  = 	inet_net.h \
 			uint128.h \
@@ -155,7 +157,9 @@ HEADERS  = 	inet_net.h \
             TagService.h \
 			ObjectMatcher.h \
 			ObjectMirror.h \
-			XMLTools.h
+			XMLTools.h \
+    TemplateFirewall.h \
+    TemplateGroup.h
 
 TARGET    = fwbuilder
 

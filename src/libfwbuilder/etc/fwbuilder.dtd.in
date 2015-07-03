@@ -87,7 +87,7 @@
 >
 
 <!ELEMENT Library
-((AnyNetwork|AnyIPService|AnyInterval|ObjectGroup|DynamicGroup|StateSyncClusterGroup|FailoverClusterGroup|Host|Firewall|Cluster|Network|NetworkIPv6|AttachedNetworks|IPv4|IPv6|DNSName|AddressTable|physAddress|AddressRange|ObjectRef|ServiceGroup|IPService|ICMPService|ICMP6Service|TCPService|UDPService|CustomService|ServiceRef|IntervalGroup|Interval|IntervalRef|Interface|Policy|NAT|PolicyRule|NATRule|Library|TagService|UserService|DummyNetwork|DummyIPService|DummyInterface)*)>
+((AnyNetwork|AnyIPService|AnyInterval|ObjectGroup|DynamicGroup|StateSyncClusterGroup|FailoverClusterGroup|Host|Firewall|Cluster|TemplateFirewall|TemplateGroup|Network|NetworkIPv6|AttachedNetworks|IPv4|IPv6|DNSName|AddressTable|physAddress|AddressRange|ObjectRef|ServiceGroup|IPService|ICMPService|ICMP6Service|TCPService|UDPService|CustomService|ServiceRef|IntervalGroup|Interval|IntervalRef|Interface|Policy|NAT|PolicyRule|NATRule|Library|TagService|UserService|DummyNetwork|DummyIPService|DummyInterface)*)>
 <!ATTLIST Library
  %STD_ATTRIBUTES;
  color   %STRING;  #IMPLIED
@@ -134,7 +134,7 @@
        ref IDREF #REQUIRED
 >
 
-<!ELEMENT ObjectGroup ((ObjectGroup|DynamicGroup|Host|Firewall|Cluster|Network|NetworkIPv6|IPv4|IPv6|DNSName|AddressTable|AddressRange|ObjectRef)*)>
+<!ELEMENT ObjectGroup ((ObjectGroup|DynamicGroup|Host|Firewall|Cluster|TemplateFirewall|Network|NetworkIPv6|IPv4|IPv6|DNSName|AddressTable|AddressRange|ObjectRef)*)>
 <!ATTLIST ObjectGroup
         %STD_ATTRIBUTES;
         subfolders %STRING; #IMPLIED
@@ -170,6 +170,15 @@
 >
 
 
+<!--
+      **** Document structure, Firewall members. ****
+-->
+<!ELEMENT TemplateGroup (ObjectRef*, TemplateGroupOptions?)>
+<!ATTLIST TemplateGroup
+ %STD_ATTRIBUTES;
+ inactive             %BOOLEAN;   #IMPLIED
+>
+
 <!-- 
 
 This element will contain elements with platform  specific
@@ -200,6 +209,7 @@ own compiler) we do not define content model for this element.
 <!ELEMENT GatewayOptions    (Option*)>
 <!ELEMENT ClusterGroupOptions (Option*)>
 <!ELEMENT RuleSetOptions    (Option*)>
+<!ELEMENT TemplateGroupOptions (Option*)>
 
 <!-- 
       **** Document structure, rest ****
@@ -592,7 +602,7 @@ some can't (ipfilter, IOS, PIX)
  host_OS              %STRING;    #IMPLIED
 >
 
-<!ELEMENT Firewall (NAT* , Policy* , Routing , Interface* , Management?, FirewallOptions?)>
+<!ELEMENT Firewall (NAT* , Policy* , Routing , Interface* , Management?, FirewallOptions?, TemplateGroup?)>
 <!ATTLIST Firewall
  %STD_ATTRIBUTES;
  platform             %STRING;    #REQUIRED
@@ -606,6 +616,17 @@ some can't (ipfilter, IOS, PIX)
 
 <!ELEMENT Cluster (NAT*, Policy*, Routing, Interface*, Management?, FirewallOptions?, StateSyncClusterGroup*)>
 <!ATTLIST Cluster
+ %STD_ATTRIBUTES;
+ platform             %STRING;    #REQUIRED
+ host_OS              %STRING;    #IMPLIED
+ lastModified         %NUMBER;    #IMPLIED
+ lastInstalled        %NUMBER;    #IMPLIED
+ lastCompiled         %NUMBER;    #IMPLIED
+ inactive             %BOOLEAN;   #IMPLIED
+>
+
+<!ELEMENT TemplateFirewall (NAT*, Policy*, Routing, Interface*, Management?, FirewallOptions?)>
+<!ATTLIST TemplateFirewall
  %STD_ATTRIBUTES;
  platform             %STRING;    #REQUIRED
  host_OS              %STRING;    #IMPLIED

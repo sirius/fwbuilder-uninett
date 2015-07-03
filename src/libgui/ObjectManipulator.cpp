@@ -60,6 +60,7 @@
 #include "fwbuilder/FWObject.h"
 #include "fwbuilder/FailoverClusterGroup.h"
 #include "fwbuilder/Firewall.h"
+#include "fwbuilder/TemplateFirewall.h"
 #include "fwbuilder/Host.h"
 #include "fwbuilder/ICMP6Service.h"
 #include "fwbuilder/ICMPService.h"
@@ -449,6 +450,11 @@ void ObjectManipulator::addSubfolderActions(QList<QAction*> &AddObjectActions, F
     if (path.find("Clusters") == 0) {
         AddObjectActions.append(
             addNewObjectMenuItem(popup_menu, Cluster::TYPENAME));
+    }
+
+    if (path.find("Template Firewalls") == 0) {
+        AddObjectActions.append(
+            addNewObjectMenuItem(popup_menu, TemplateFirewall::TYPENAME));
     }
 
     if (path.find("Objects/Addresses") == 0)
