@@ -42,6 +42,7 @@
 #include "FWBTree.h"
 #include "FWWindow.h"
 #include "ProjectPanel.h"
+#include "ObjConflictResolutionDialog.h"
 
 #include "fwbuilder/AddressRange.h"
 #include "fwbuilder/AddressTable.h"
@@ -684,13 +685,19 @@ FWObject* ObjectManipulator::newTemplateFirewall(QUndoCommand* macro)
     ObjectTreeViewItem* parent_item = allItems[parent];
     assert(parent_item);
 
-    FWObjectDatabase *db_orig = parent->getRoot();
-    FWObjectDatabase *db_copy = new FWObjectDatabase();
-    db_copy->duplicate(db_orig, false);
-
-    FWObject *nfw = static_cast<TemplateFirewall*>(db_copy->create(TemplateFirewall::TYPENAME));
-
+    FWObjectDatabase *db = parent->getRoot();
+    FWObject *nfw = db->create(TemplateFirewall::TYPENAME);
     nfw->setName("Unnamed Template");
+
+
+    QString new_name = makeNameUnique(parent, findNewestObjectName(parent,
+                                                                        TemplateFirewall::TYPENAME,
+                                                                        "Unnamed Template"),
+                                      TemplateFirewall::TYPENAME);
+
+    nfw->setName(new_name.toStdString());
+
+    nfw = TemplateFirewall::cast(db->findInIndex(nfw->getId()));
 
     if (nfw!=NULL)
     {
@@ -771,6 +778,25 @@ QString ObjectManipulator::findNewestInterfaceName(FWObject *parent)
     }
     return newest_interface_name;
 }
+
+QString ObjectManipulator::findNewestObjectName(FWObject *parent, const QString &objType, const QString defaultName)
+{
+    time_t newest_object = 0;
+    QString newest_object_name = defaultName;
+
+    for (FWObjectTypedChildIterator it = parent->findByType(objType.toStdString());
+         it != it.end(); ++it)
+    {
+        if (newest_object < (*it)->getCreationTime())
+        {
+            newest_object = (*it)->getCreationTime();
+            newest_object_name = (*it)->getName().c_str();
+        }
+    }
+    return newest_object_name;
+}
+
+
 
 FWObject* ObjectManipulator::newInterface(QUndoCommand* macro)
 {

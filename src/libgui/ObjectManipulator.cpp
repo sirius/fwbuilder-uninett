@@ -320,6 +320,16 @@ QString ObjectManipulator::makeNameUnique(FWObject* parent,
         }
     }
 
+    if (obj_type == TemplateFirewall::TYPENAME)
+    {
+        QRegExp rx("(.*)-(\\d{1,})");
+        if (rx.indexIn(obj_name) != -1)
+        {
+            basename = rx.cap(1);
+            suffix = rx.cap(2).toInt();
+        }
+    }
+
 /*
  * Check if there is another object with the same name. Note that
  * FWObject::findObjectByName() searches in depth, but we only need to

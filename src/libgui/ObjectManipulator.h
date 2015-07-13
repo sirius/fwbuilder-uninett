@@ -155,6 +155,7 @@ class ObjectManipulator : public QWidget
          
     /* find the name of the interface that was created last */
     QString findNewestInterfaceName(libfwbuilder::FWObject *parent);
+    QString findNewestObjectName(libfwbuilder::FWObject *parent, const QString &objType, const QString defaultName);
 
     libfwbuilder::FWObject* actuallyCreateObject(
         libfwbuilder::FWObject *parent,
